@@ -1,13 +1,22 @@
-package org.example;
+package org.test;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.example.User;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class Main {
-    public static void main(String[] args) {
+import static org.junit.Assert.assertEquals;
+
+public class MainTest {
+    @Test
+    public void PostTest() {
         try {
             // URL da API
             URL url = new URL("https://jsonplaceholder.typicode.com/posts");
@@ -24,23 +33,24 @@ public class Main {
             User user = new User(1, 1, "delectus aut autem", false);
 
             // Usando ObjectMapper para converter o objeto User em JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonInputString = objectMapper.writeValueAsString(user);
+            String jsonInputString = new ObjectMapper().writeValueAsString(user);
 
             // Obtendo o stream de saída da conexão para enviar o JSON
-            try (OutputStream out = connection.getOutputStream()) {
+            try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
-                out.write(input, 0, input.length);
+                os.write(input, 0, input.length);
             }
 
-            // Obtendo a resposta da requisição
+            // Obtendo o código de resposta da requisição
             int responseCode = connection.getResponseCode();
-            System.out.println("Código de resposta: " + responseCode);
+
+            // Verificando se o código de resposta é 200 (OK)
+            assertEquals(201, responseCode);
 
             // Fechando a conexão
             connection.disconnect();
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
